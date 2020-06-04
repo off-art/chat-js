@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link
+      rel="stylesheet"
+      href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css"
+    />
+    <title>Chat</title>
+  </head>
+  <body>
+    <div
+      class="d-flex flex-column flex-md-row align-items-center p-3 px-md-4 mb-3 bg-white border-bottom shadow-sm"
+    >
+      <h5 class="my-0 mr-md-auto font-weight-normal">Чат Рулетка</h5>
+      <nav class="my-2 my-md-0 mr-md-3">
+        <a class="p-2 text-dark" href="#">Features</a>
+        <a class="p-2 text-dark" href="#">Enterprise</a>
+        <a class="p-2 text-dark" href="#">Support</a>
+        <a class="p-2 text-dark" href="#">Pricing</a>
+      </nav>
+      <a class="btn btn-outline-primary" href="#">Sign up</a>
+    </div>
+    <div class="container">
+      <div class="py-5 text-center">
+        <h2>Чат программа</h2>
+        <p class="lead">
+          Укажите имя и начните общение
+        </p>
+      </div>
+      <div class="row">
+        <div class="col-6">
+          <h3>Форма сообщений</h3>
+          <form id="messForm">
+            <label for="name">Имя</label>
+            <input
+              type="text"
+              name="name"
+              id="name"
+              placeholder="Введите имя"
+              class="form-control"
+            />
+            <br />
+            <label for="message">Сообщение</label>
+            <textarea
+              name="message"
+              id="message"
+              class="form-control"
+              placeholder="Введите сообщение"
+            ></textarea>
+            <br />
+            <input type="submit" value="Отправить" class="btn btn-danger" />
+          </form>
+        </div>
+        <div class="col-6">
+          <h3>Сообщения</h3>
+          <div id="all_mess"></div>
+        </div>
+      </div>
+    </div>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+      const min = 1;
+      const max = 6;
+      let random = Math.floor(Math.random() * (max - min)) + min;
+
+      var alertClass;
+
+      switch (random) {
+        case 1:
+          alertClass = "secondary";
+          break;
+        case 2:
+          alertClass = "danger";
+          break;
+        case 3:
+          alertClass = "succsess";
+          break;
+        case 4:
+          alertClass = "warning";
+          break;
+        case 5:
+          alertClass = "info";
+          break;
+        case 6:
+          alertClass = "light";
+          break;
+      }
+
+      $(function () {
+        const socket = io.connect();
+        const $form = $("#messForm");
+        const $name = $("#name");
+        const $textarea = $("#message");
+        const $all_message = $("#all_mess");
+
+        $form.submit(function (e) {
+          e.preventDefault();
+          socket.emit("send mess", {
+            msg: $textarea.val(),
+            name: $name.val(),
+            className: alertClass,
+          });
+          $textarea.val("");
+        });
+
+        socket.on("add mess", function (data) {
+          $all_message.append(
+            "<div class='alert alert-" +
+              data.className +
+              "'><b>" +
+              data.name +
+              "</b>:" +
+              data.msg +
+              "</div>"
+          );
+        });
+      });
+    </script>
+  </body>
+</html>
